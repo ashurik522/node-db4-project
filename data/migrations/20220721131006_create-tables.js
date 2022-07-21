@@ -2,7 +2,7 @@
 exports.up = function(knex) {
   return knex.schema
   .createTable('recipes', tbl => {
-    tbl.increments()
+    tbl.increments('recipe_id')
     tbl.varchar('recipe_name', 128)
         .notNullable()
         .unique()
@@ -10,7 +10,7 @@ exports.up = function(knex) {
         .defaultTo(knex.fn.now())
   })
   .createTable('steps', tbl => {
-    tbl.increments();
+    tbl.increments('step_id');
     tbl.varchar('instructions', 200)
         .notNullable()
     tbl.integer('step_number')
@@ -20,26 +20,16 @@ exports.up = function(knex) {
     tbl.integer('recipe_id')
         .unsigned()
         .notNullable()
-        .references('id')
+        .references('recipe_id')
         .inTable('recipes')
-        .onUpdate('CASCADE')
-        .onDelete('CASCADE')
   })
   .createTable('ingredients', tbl => {
-    tbl.increments();
+    tbl.increments('ingredient_id');
     tbl.varchar('name', 128)
         .notNullable()
         .unique()
-    tbl.integer('step_number')
-        .unsigned()
-        .notNullable()
-        .references('step_number')
-        .inTable('steps')
-        .onUpdate('CASCADE')
-        .onDelete('CASCADE')
   })
   .createTable('ingredient_details', tbl => {
-    tbl.increments()
     tbl.integer('quantity')
         .notNullable()
         .unsigned()
@@ -48,13 +38,18 @@ exports.up = function(knex) {
     tbl.integer('ingredient_id')
         .unsigned()
         .notNullable()
-        .references('id')
+        .references('ingredient_id')
         .inTable('ingredients')
-        .onUpdate('CASCADE')
-        .onDelete('CASCADE')
+    tbl.integer('step_id')
+        .unsigned()
+        .notNullable()
+        .references('step_id')
+        .inTable('steps')
+    tbl.primary(['ingredient_id', 'step_id'])
   })
+  
+ 
 };
-
 
 
 exports.down = function(knex) {
